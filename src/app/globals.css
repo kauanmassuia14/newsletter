@@ -1,26 +1,289 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* Class-based dark mode for Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* ── Brand: Deep Blue/Black ── */
+  --color-brand: #0A1F35;
+  --color-brand-50: #edf1f5;
+  --color-brand-100: #d0dae5;
+  --color-brand-200: #a8baca;
+  --color-brand-300: #7d99b0;
+  --color-brand-400: #5a7d9e;
+  --color-brand-500: #3c668c;
+  --color-brand-600: #2a4f73;
+  --color-brand-700: #1a3a5a;
+  --color-brand-800: #0A1F35;
+  --color-brand-900: #050e18;
+
+  /* ── Accent: Neon Soft ── */
+  --color-accent: #38bdf8;
+  --color-accent-50: #f0f9ff;
+  --color-accent-100: #e0f2fe;
+  --color-accent-200: #bae6fd;
+  --color-accent-300: #7dd3fc;
+  --color-accent-400: #38bdf8;
+  --color-accent-500: #0ea5e9;
+  --color-accent-600: #0284c7;
+  --color-accent-700: #0369a1;
+
+  /* ── Glass Surface ── */
+  --color-glass: rgba(255, 255, 255, 0.04);
+  --color-glass-border: rgba(255, 255, 255, 0.06);
+  --color-glass-hover: rgba(255, 255, 255, 0.07);
+
+  /* ── Fonts ── */
+  --font-heading: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* ── Animations ── */
+  --animate-fade-in: fade-in 0.4s ease-out both;
+  --animate-fade-up: fade-up 0.5s ease-out both;
+  --animate-scale-up: scale-up 0.35s ease-out both;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.8s ease-in-out infinite;
+  --animate-slide-in: slide-in-right 0.3s ease-out both;
+  --animate-glow: glow-pulse 2s ease-in-out infinite;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ══════════════════════════════════════════
+   KEYFRAMES
+   ══════════════════════════════════════════ */
+
+@keyframes fade-in {
+  from {
+    opacity: 0
+  }
+
+  to {
+    opacity: 1
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px)
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0)
+  }
+}
+
+@keyframes scale-up {
+  from {
+    opacity: 0;
+    transform: scale(0.95)
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1)
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0)
+  }
+
+  50% {
+    transform: translateY(-10px)
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0
+  }
+
+  100% {
+    background-position: 200% 0
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(16px)
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0)
+  }
+}
+
+@keyframes glow-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(56, 189, 248, 0.15)
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.3)
+  }
+}
+
+/* ══════════════════════════════════════════
+   BASE
+   ══════════════════════════════════════════ */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: var(--font-body);
+    @apply bg-white text-slate-900 dark:bg-brand-900 dark:text-slate-100;
+    line-height: 1.7;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+  }
+
+  ::selection {
+    background-color: #38bdf8;
+    color: #050e18;
+  }
+
+  ::-webkit-scrollbar {
+    width: 5px
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 dark:bg-slate-700;
+    border-radius: 999px;
+  }
+}
+
+/* ══════════════════════════════════════════
+   COMPONENTS
+   ══════════════════════════════════════════ */
+
+@layer components {
+
+  /* ── Glassmorphism Surface ── */
+  .glass {
+    @apply border border-white/[.06] bg-white/[.03] backdrop-blur-2xl;
+  }
+
+  .glass-hover {
+    @apply hover:bg-white/[.06] hover:border-white/[.08];
+  }
+
+  /* ── Premium Card ── */
+  .card-premium {
+    @apply rounded-2xl border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-brand/5 dark:border-white/[.06] dark:bg-white/[.025] dark:hover:bg-white/[.04] dark:hover:shadow-accent/5;
+  }
+
+  /* ── Prose for Rich Content ── */
+  .prose-brand h2 {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    @apply text-brand dark:text-accent-200;
+  }
+
+  .prose-brand h3 {
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    @apply text-brand-700 dark:text-accent-300;
+  }
+
+  .prose-brand p {
+    margin-bottom: 1.1rem;
+    line-height: 1.85;
+    @apply text-slate-600 dark:text-slate-400;
+  }
+
+  .prose-brand blockquote {
+    border-left: 3px solid #38bdf8;
+    padding: 0.875rem 1.25rem;
+    margin: 1.5rem 0;
+    border-radius: 0 12px 12px 0;
+    font-style: italic;
+    @apply bg-accent-50 text-brand-700 dark:bg-accent-700/10 dark:text-accent-200 dark:border-accent-400;
+  }
+
+  .prose-brand ul,
+  .prose-brand ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .prose-brand li {
+    margin-bottom: 0.4rem;
+    @apply text-slate-600 dark:text-slate-400;
+  }
+
+  .prose-brand strong {
+    @apply text-brand dark:text-accent-200;
+    font-weight: 600;
+  }
+}
+
+/* ══════════════════════════════════════════
+   UTILITIES
+   ══════════════════════════════════════════ */
+
+@layer utilities {
+  .delay-100 {
+    animation-delay: 100ms
+  }
+
+  .delay-200 {
+    animation-delay: 200ms
+  }
+
+  .delay-300 {
+    animation-delay: 300ms
+  }
+
+  .bg-grid {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, .04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, .04) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+
+  /* Skeleton shimmer gradient */
+  .skeleton-shimmer {
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.04) 50%,
+        transparent 100%);
+    background-size: 200% 100%;
+  }
+
+  /* Neon glow text */
+  .text-glow {
+    text-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+  }
 }
