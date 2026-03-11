@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { createClient } from "@/lib/supabase";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -18,15 +19,41 @@ export default function LoginPage() {
         e.preventDefault();
         setError("");
         setIsLoading(true);
-        await new Promise((r) => setTimeout(r, 1200));
-        if (email === "admin@connectstory.com" && password === "admin123") {
-            router.push("/dashboard");
-        } else if (email && password) {
-            router.push("/feed");
-        } else {
-            setError("Email ou senha incorretos.");
+
+        try {
+            const supabase = createClient();
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+
+            if (error) throw error;
+            if (!data.user) throw new Error("Usuário não encontrado.");
+
+            // Check profile
+            const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('is_admin')
+                .eq('id', data.user.id)
+                .single();
+
+            if (profileError && profileError.code !== 'PGRST116') {
+                console.error("Erro ao buscar perfil:", profileError);
+            }
+
+            if (profile?.is_admin) {
+                router.push("/dashboard");
+            } else {
+                router.push("/feed");
+            }
+        } catch (err: any) {
+            console.error("Erro de Login:", err);
+            setError(err.message === "Failed to fetch"
+                ? "Erro de conexão: Verifique sua internet ou as configurações do Supabase."
+                : (err.message || "Erro ao fazer login."));
+        } finally {
+            setIsLoading(false);
         }
-        setIsLoading(false);
     };
 
     return (
@@ -127,12 +154,6 @@ export default function LoginPage() {
                     <p className="mt-7 text-center text-sm text-slate-400 dark:text-slate-500">
                         Não tem conta? <Link href="/" className="font-semibold text-brand transition hover:underline dark:text-accent-300">Inscreva-se</Link>
                     </p>
-
-                    <div className="mt-7 rounded-xl border border-slate-100 bg-slate-50/50 p-3.5 dark:border-white/[.06] dark:bg-white/[.02]">
-                        <p className="mb-1 text-xs font-semibold text-slate-600 dark:text-slate-300">Credenciais de demonstração</p>
-                        <p className="text-xs text-slate-400 dark:text-slate-500"><span className="font-medium">Admin:</span> admin@connectstory.com / admin123</p>
-                        <p className="text-xs text-slate-400 dark:text-slate-500"><span className="font-medium">Leitor:</span> qualquer email / qualquer senha</p>
-                    </div>
                 </div>
             </div>
         </div>

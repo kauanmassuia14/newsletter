@@ -7,30 +7,45 @@ import { PostCard } from "@/components/feed/post-card";
 import { ThreadView } from "@/components/feed/thread-view";
 import { PostCardSkeleton } from "@/components/ui/skeleton";
 import { useEngagement } from "@/hooks/use-engagement";
-import { mockPosts, CATEGORIES, type Category, type Post } from "@/lib/data";
+import { CATEGORIES, type Category, type Post } from "@/lib/data";
+import { createClient } from "@/lib/supabase";
 
 export default function FeedPage() {
     const [category, setCategory] = useState<Category | "all">("all");
     const [selected, setSelected] = useState<Post | null>(null);
-    const [loading, setLoading] = useState(false);
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchPosts() {
+            setLoading(true);
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            let query = supabase.from('posts').select('*, author_profile:profiles!autor_da_noticia(display_name, avatar_url)').order('created_at', { ascending: false });
+
+            if (category !== 'all') {
+                query = query.eq('category', category);
+            }
+
+            const { data, error } = await query;
+            if (error) {
+                console.error(error);
+            } else {
+                setPosts(data as any[]);
+            }
+            setLoading(false);
+        }
+        fetchPosts();
+    }, [category]);
+
     const { liked, saved, toggleLike, toggleSave } = useEngagement();
 
-    const filtered = category === "all"
-        ? mockPosts.filter(p => p.published)
-        : mockPosts.filter(p => p.published && p.category === category);
-
-    /* Simulate loading on category switch */
     const handleCategorySwitch = (cat: Category | "all") => {
         if (cat === category) return;
-        setLoading(true);
         setCategory(cat);
     };
 
-    useEffect(() => {
-        if (!loading) return;
-        const t = setTimeout(() => setLoading(false), 400);
-        return () => clearTimeout(t);
-    }, [loading]);
+    const filtered = posts;
 
     if (selected) {
         return (

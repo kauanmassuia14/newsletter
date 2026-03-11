@@ -23,14 +23,19 @@ export function PostCard({ post, index, liked, saved, onLike, onSave, onClick }:
             style={{ animationDelay: `${index * 40}ms` }}
         >
             <div className="flex gap-3">
-                <Avatar name={post.author} />
+                <Avatar
+                    name={post.author_profile?.display_name || post.author || "Admin"}
+                    src={post.author_profile?.avatar_url}
+                />
 
                 <div className="min-w-0 flex-1">
                     {/* Author */}
                     <div className="mb-0.5 flex items-center gap-1.5">
-                        <span className="text-[15px] font-bold text-brand dark:text-white">{post.author}</span>
+                        <span className="text-[15px] font-bold text-brand dark:text-white">
+                            {post.author_profile?.display_name || post.author || "Admin"}
+                        </span>
                         <VerifiedIcon />
-                        <span className="text-[13px] text-slate-400 dark:text-slate-500">· {formatDate(post.createdAt)}</span>
+                        <span className="text-[13px] text-slate-400 dark:text-slate-500">· {formatDate(post.created_at || post.createdAt || "")}</span>
                     </div>
 
                     {/* Category */}
@@ -44,21 +49,46 @@ export function PostCard({ post, index, liked, saved, onLike, onSave, onClick }:
 
                     {/* Preview Card */}
                     <div className={`mb-3 overflow-hidden rounded-xl border border-slate-100 dark:border-white/5 ${style.card}`}>
-                        <div className="flex h-32 items-center justify-center sm:h-40">
-                            <svg className="h-10 w-10 text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a2.25 2.25 0 002.25-2.25V5.25a2.25 2.25 0 00-2.25-2.25H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
-                            </svg>
+                        <div className="relative flex h-40 items-center justify-center sm:h-48 overflow-hidden bg-slate-100 dark:bg-brand-800">
+                            {post.images && post.images.length > 0 ? (
+                                <img src={post.images[0]} alt={post.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                            ) : (
+                                <svg className="h-10 w-10 text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a2.25 2.25 0 002.25-2.25V5.25a2.25 2.25 0 00-2.25-2.25H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+                                </svg>
+                            )}
+
+                            {post.video_url && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[2px]">
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-brand shadow-xl dark:bg-accent-400 dark:text-brand-900">
+                                        <svg className="ml-1 h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5.147l10 6.853-10 6.853v-13.706z" /></svg>
+                                    </div>
+                                </div>
+                            )}
+
+                            {post.images && post.images.length > 1 && (
+                                <div className="absolute top-3 right-3 rounded-md bg-black/40 px-1.5 py-0.5 text-[10px] font-bold text-white backdrop-blur">
+                                    1 / {post.images.length}
+                                </div>
+                            )}
                         </div>
                         <div className="border-t border-slate-100 bg-white/80 px-3.5 py-2 dark:border-white/5 dark:bg-brand-900/60">
                             <p className="truncate text-xs font-medium text-brand dark:text-white">{post.title}</p>
-                            <p className="text-[11px] text-slate-400 dark:text-slate-500">{post.readTime} de leitura</p>
+                            <p className="text-[11px] text-slate-400 dark:text-slate-500">{post.readTime || "5 min"} de leitura</p>
                         </div>
                     </div>
 
                     {/* Actions */}
                     <div className="flex max-w-[380px] items-center justify-between">
                         <ActionBtn icon={<CommentIcon />} count={12} hoverClass="hover:bg-sky-50 hover:text-sky-500 dark:hover:bg-accent-500/10" onClick={stopPropagation} />
-                        <ActionBtn icon={<RetweetIcon />} count={4} hoverClass="hover:bg-emerald-50 hover:text-emerald-500 dark:hover:bg-emerald-500/10" onClick={stopPropagation} />
+                        <ActionBtn
+                            icon={<DownloadIcon />}
+                            hoverClass="hover:bg-emerald-50 hover:text-emerald-500 dark:hover:bg-emerald-500/10"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleDownloadPDF(post);
+                            }}
+                        />
                         <ActionBtn
                             icon={<HeartIcon filled={liked} />}
                             count={28}
@@ -80,6 +110,27 @@ export function PostCard({ post, index, liked, saved, onLike, onSave, onClick }:
             </div>
         </article>
     );
+}
+
+const handleDownloadPDF = async (post: Post) => {
+    const jsPDF = (await import('jspdf')).default;
+    const doc = new jsPDF();
+
+    doc.setFontSize(20);
+    doc.text(post.title, 10, 20);
+
+    doc.setFontSize(12);
+    doc.text(`Por: ${post.author || "Admin"} | ${formatDate(post.created_at || post.createdAt || "")}`, 10, 30);
+
+    doc.setFontSize(14);
+    const splitContent = doc.splitTextToSize(post.content.replace(/<[^>]*>?/gm, ''), 180);
+    doc.text(splitContent, 10, 45);
+
+    doc.save(`${post.title.substring(0, 20)}.pdf`);
+};
+
+function DownloadIcon() {
+    return <svg className="h-[17px] w-[17px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>;
 }
 
 /* ── Sub-components & Icons ── */

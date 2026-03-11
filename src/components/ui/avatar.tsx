@@ -1,5 +1,6 @@
 interface AvatarProps {
     name: string;
+    src?: string;
     size?: "sm" | "md" | "lg";
     className?: string;
 }
@@ -10,15 +11,19 @@ const sizeMap = {
     lg: "h-11 w-11 text-sm",
 };
 
-export function Avatar({ name, size = "md", className = "" }: AvatarProps) {
+export function Avatar({ name, src, size = "md", className = "" }: AvatarProps) {
     return (
         <div
-            className={`flex shrink-0 items-center justify-center rounded-full
+            className={`flex shrink-0 items-center justify-center overflow-hidden rounded-full
         bg-brand font-bold text-white
         dark:bg-accent-400/20 dark:text-accent-300
         ${sizeMap[size]} ${className}`}
         >
-            {name[0]?.toUpperCase()}
+            {src ? (
+                <img src={src} alt={name} className="h-full w-full object-cover" />
+            ) : (
+                name[0]?.toUpperCase()
+            )}
         </div>
     );
 }

@@ -4,6 +4,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Button } from "@/components/ui/button";
 import { useNewsletterForm } from "@/hooks/use-newsletter-form";
+import Link from "next/link";
 
 export default function LandingPage() {
   const { email, setEmail, isSubmitting, isSuccess, handleSubmit } = useNewsletterForm();
@@ -38,23 +39,27 @@ export default function LandingPage() {
 
           <div id="inscrever" className="mx-auto mt-10 max-w-md animate-fade-up delay-200" style={{ opacity: 0 }}>
             {!isSuccess ? (
-              <form onSubmit={handleSubmit}>
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <input
-                    id="hero-email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    placeholder="Seu melhor email"
-                    className="flex-1 rounded-xl border border-white/10 bg-white/[.06] px-5 py-3.5 text-sm text-white placeholder-white/30 backdrop-blur transition focus:border-accent-400/40 focus:bg-white/[.08] focus:outline-none focus:ring-2 focus:ring-accent-400/20"
-                  />
-                  <Button id="hero-submit" type="submit" loading={isSubmitting} size="lg" className="!bg-white !text-brand hover:!bg-slate-100 dark:!bg-white dark:!text-brand">
-                    Inscrever-se
-                  </Button>
+              <div className="flex flex-col gap-4">
+                <form onSubmit={handleSubmit}>
+                  <div className="flex flex-col gap-3 sm:flex-row">
+                    <input
+                      id="hero-email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      placeholder="Seu melhor email"
+                      className="flex-1 rounded-xl border border-white/10 bg-white/[.06] px-5 py-3.5 text-sm text-white placeholder-white/30 backdrop-blur transition focus:border-accent-400/40 focus:bg-white/[.08] focus:outline-none focus:ring-2 focus:ring-accent-400/20"
+                    />
+                    <Button id="hero-submit" type="submit" loading={isSubmitting} size="lg" className="!bg-white !text-brand hover:!bg-slate-100 dark:!bg-white dark:!text-brand">
+                      Inscrever-se
+                    </Button>
+                  </div>
+                </form>
+                <div className="text-sm text-white/40">
+                  Já é membro? <Link href="/login" className="font-semibold text-white hover:underline">Entre aqui</Link>
                 </div>
-                <p className="mt-3 text-xs text-white/25">Sem spam. Cancele quando quiser.</p>
-              </form>
+              </div>
             ) : (
               <div className="animate-scale-up rounded-2xl border border-white/10 bg-white/[.06] p-7 backdrop-blur">
                 <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20">
@@ -157,11 +162,14 @@ export default function LandingPage() {
         <div className="mx-auto max-w-3xl px-6 text-center">
           <h2 className="font-[var(--font-heading)] text-4xl font-extrabold text-brand dark:text-white sm:text-5xl">Pronto para começar?</h2>
           <p className="mx-auto mt-4 max-w-xl text-lg text-slate-500 dark:text-slate-400">Junte-se a mais de 1.200 profissionais que transformam sua perspectiva toda semana.</p>
-          <a href="#inscrever">
-            <Button size="lg" className="mt-8" icon={<svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" /></svg>}>
-              Inscrever-se gratuitamente
-            </Button>
-          </a>
+          <div className="mt-8 flex justify-center gap-4">
+            <a href="#inscrever">
+              <Button size="lg">Assinar Agora</Button>
+            </a>
+            <Link href="/login">
+              <Button size="lg" variant="secondary">Entrar</Button>
+            </Link>
+          </div>
         </div>
       </section>
 

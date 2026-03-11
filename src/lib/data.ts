@@ -6,18 +6,27 @@ export interface Post {
     excerpt: string;
     content: string;
     category: Category;
-    author: string;
-    published: boolean;
-    featured: boolean;
-    createdAt: string;
-    readTime: string;
+    author?: string;
+    author_id?: string;
+    published?: boolean;
+    featured?: boolean;
+    createdAt?: string;
+    created_at?: string;
+    readTime?: string;
+    images?: string[];
+    video_url?: string;
+    author_profile?: {
+        display_name: string;
+        avatar_url: string;
+    };
 }
 
 export interface Subscriber {
     id: string;
     email: string;
     name: string;
-    createdAt: string;
+    createdAt?: string;
+    created_at?: string;
     status: "active" | "inactive";
 }
 
