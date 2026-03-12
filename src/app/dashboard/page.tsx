@@ -173,7 +173,6 @@ export default function DashboardPage() {
             category: newPost.category,
             images: validImages,
             video_url: newPost.video_url,
-            author: profile?.display_name || "Kauan",
             author_id: user.id
         });
 
